@@ -1,27 +1,18 @@
-import os
 import requests
-from dotenv import load_dotenv
-
-# Ensure we load the project's properties.env in the repo root
-dotenv_path = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "properties.env")
-)
-load_dotenv(dotenv_path)
-
-GNEWS_API_KEY = os.getenv("GNEWS_API_KEY")
-
+from config.settings import settings
 
 def get_news(city: str):
 
     url = (
-        f"https://gnews.io/api/v4/search"
-        f"?q={city}"
-        f"&lang=en"
-        f"&max=5"
-        f"&apikey={GNEWS_API_KEY}"
-    )
+    f"https://gnews.io/api/v4/search"
+    f"?q={city}"
+    f"&lang=en"
+    f"&max=5"
+    f"&apikey={settings.gnews_api_key}"
+)
 
     response = requests.get(url)
+    response.raise_for_status()
 
     data = response.json()
 

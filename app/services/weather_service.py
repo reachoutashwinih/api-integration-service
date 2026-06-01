@@ -1,33 +1,25 @@
 import requests
-
-
-CITY_COORDS = {
-    "bangalore": (12.97, 77.59),
-    "mumbai": (19.07, 72.87),
-    "delhi": (28.61, 77.20),
-}
+from config.settings import settings
 
 
 def get_weather(city: str):
-
-    city = city.lower()
-
-    if city not in CITY_COORDS:
-        city = "bangalore"
-
-    lat, lon = CITY_COORDS[city]
+    if not settings.weather_api_key:
+        raise ValueError("Missing OpenWeather API key. Set weather_api_key in properties.env or export it as an environment variable.")
 
     url = (
-        f"https://api.open-meteo.com/v1/forecast"
-        f"?latitude={lat}"
-        f"&longitude={lon}"
-        f"&current=temperature_2m"
+        "https://api.openweathermap.org/data/2.5/weather"
+        f"?q={city}"
+        f"&appid={settings.weather_api_key}"
+        "&units=metric"
     )
 
-    response = requests.get(url)
+    response = requests.get(url, timeout=10)
+    if response.status_code == 401:
+        raise ValueError("Unauthorized OpenWeather API key. Verify weather_api_key in properties.env and ensure the key is active.")
+    response.raise_for_status()
 
     data = response.json()
 
     return {
-        "temperature": data["current"]["temperature_2m"]
+        "temperature": data["main"]["temp"]
     }

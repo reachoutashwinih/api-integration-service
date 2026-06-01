@@ -3,7 +3,7 @@
 Lightweight FastAPI service that aggregates weather and news for a requested city.
 
 Features
-- Fetch current temperature for supported cities using Open-Meteo.
+- Fetch current temperature for supported cities using OpenWeather.
 - Fetch recent news articles for a city using GNews.
 - Simple `/weather` and `/dashboard` endpoints for integration and testing.
 
@@ -22,10 +22,11 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-3. Add your API key in `properties.env` (repo root):
+3. Add your API keys in `properties.env` (repo root):
 
 ```
-GNEWS_API_KEY="your_gnews_api_key_here"
+gnews_api_key="your_gnews_api_key_here"
+weather_api_key="your_openweather_api_key_here"
 ```
 
 4. Run the app with Uvicorn:
@@ -41,8 +42,8 @@ Endpoints
 
 Notes
 - Supported cities (case-insensitive): `bangalore`, `mumbai`, `delhi`. Unknown cities default to `bangalore` for weather.
-- `properties.env` is loaded by `app/services/news_service.py`. You can also export `GNEWS_API_KEY` in your shell.
-- If `news` is empty, check that `GNEWS_API_KEY` is present and valid.
+- `properties.env` is loaded by `config/settings.py`. You can also export `gnews_api_key` and `weather_api_key` in your shell.
+- If `/weather` returns 401 or fails, check that `weather_api_key` is present and valid for OpenWeather.
 
 Development
 - The code lives in `app/services` and `app/main.py`.
