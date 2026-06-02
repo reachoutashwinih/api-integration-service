@@ -1,25 +1,34 @@
-import requests
-from config.settings import settings
+import httpx
+from app.config.settings import settings
 
 
-def get_weather(city: str):
-    if not settings.weather_api_key:
-        raise ValueError("Missing OpenWeather API key. Set weather_api_key in properties.env or export it as an environment variable.")
+CITY_COORDS = {
+    "bangalore": (12.97, 77.59),
+    "mumbai": (19.07, 72.87),
+    "delhi": (28.61, 77.20),
+}
+
+
+async def get_weather(city: str):
+
+    city = city.lower()
+
+    if city not in CITY_COORDS:
+        city = "bangalore"
+
+    lat, lon = CITY_COORDS[city]
 
     url = (
-        "https://api.openweathermap.org/data/2.5/weather"
-        f"?q={city}"
-        f"&appid={settings.weather_api_key}"
-        "&units=metric"
+        "https://api.open-meteo.com/v1/forecast"
+        f"?latitude={lat}"
+        f"&longitude={lon}"
+        "&current=temperature_2m"
     )
 
-    response = requests.get(url, timeout=10)
-    if response.status_code == 401:
-        raise ValueError("Unauthorized OpenWeather API key. Verify weather_api_key in properties.env and ensure the key is active.")
-    response.raise_for_status()
-
-    data = response.json()
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url)
+        data = response.json()
 
     return {
-        "temperature": data["main"]["temp"]
+        "temperature": data["current"]["temperature_2m"]
     }
